@@ -1,0 +1,65 @@
+/* ---------------------------------------------------
+    SIDEBAR STYLE
+----------------------------------------------------- */
+
+#sidebar {
+    width: 300px;
+    position: fixed;
+    right: -300px;
+    z-index: 999;
+    background: #ffffff;
+    transition: all 0.3s;
+    overflow-y: scroll;
+    bottom:0;
+    top:0;
+		-webkit-overflow-scrolling:touch;
+		-ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
+#sidebar.active {
+    right: 0;
+}
+
+#sidebar.active::-webkit-scrollbar {
+			width: 6px;
+			background-color: #fff;
+		}
+		#sidebar.active::-webkit-scrollbar-thumb {
+			border-radius: 0px;
+			-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+			background-color: #aab8e6;
+		}
+
+#dismiss {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    cursor: pointer;
+    -webkit-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+}
+
+#dismiss:hover {
+    background: #fff;
+    color: #7386D5;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 998;
+    opacity: 0;
+    transition: all 0.5s ease-in-out;
+}
+.overlay.active {
+    display: block;
+    opacity: 1;
+}
