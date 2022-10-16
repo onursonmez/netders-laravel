@@ -32,7 +32,7 @@
                       </a>
                       <div class="media-body">
 
-                        <h3 class="text-dark font-weight-bolder mr-12">Pratik</h3 <p>Gelişmiş arama motoru ile aradığın eğitmeni kolayca bulur, istediğin zaman derse başlayabilirsin.</p>
+                        <h3 class="text-dark font-weight-bolder mr-12">Pratik</h3 <p>Akıllı arama motoru ile aradığın eğitmeni kolayca bulur, istediğin zaman derse başlayabilirsin.</p>
                       </div>
                     </div>
 
@@ -295,9 +295,9 @@
           {{ $title }} özel ders verenler
         </h2>
         <div class="owl-4 owl-carousel owl-theme">
-          
+
           @foreach($value as $user)
-          
+
 					<div class="item card border mr-2 ml-2">
             <a href="{{ url($user->username) }}" target="_blank">
               <img class="card-img-top" src="{{ asset($user->photo->url ?? ($user->detail->gender == 'M' ? 'img/icon-male.png' : 'img/icon-female.png')) }}">
