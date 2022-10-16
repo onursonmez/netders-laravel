@@ -60,7 +60,7 @@ class HomeController extends Controller
         {
             $data['subjects'] = \App\Models\Subject::get();
             Cache::put($cache, $data['subjects'], 1440);
-        }        
+        }
 
         $cache = md5(json_encode('cities'));
         if(Cache::has($cache))
@@ -71,8 +71,8 @@ class HomeController extends Controller
         {
             $data['cities'] = \App\Models\Subject::get();
             Cache::put($cache, $data['cities'], 1440);
-        }                
-                
+        }
+
         return view('welcome', $data);
     }
 
@@ -89,6 +89,6 @@ class HomeController extends Controller
         {
             $userController = new UserController;
             return $userController->show($user->username, 'themes.theme1');
-        }    
-    }    
+        }
+    }
 }

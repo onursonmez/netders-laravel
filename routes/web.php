@@ -30,7 +30,7 @@ use App\Http\Middleware\SetupApplication;
 */
 
 Route::get('phpmyinfo', function () {
-    phpinfo(); 
+    phpinfo();
 })->name('phpmyinfo');
 
 Route::get('/datetest', function () {
@@ -43,7 +43,7 @@ Route::get('/exchange/importPrices', [ExchangeController::class, 'importPrices']
 Route::get('/exchange/average', [ExchangeController::class, 'average']);
 Route::get('/exchange/drop', [ExchangeController::class, 'drop']);
 
-Route::get('testable', function () 
+Route::get('testable', function ()
 {
     //$user = \App\Models\User::findOrFail(873);
     //Mail::to($user->email)->send(new \App\Mail\NewMessage($user));
@@ -55,10 +55,10 @@ Route::get('testable', function ()
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    
+
     $server_output = curl_exec($ch);
-    
-    curl_close ($ch);    
+
+    curl_close ($ch);
 
     $data = json_decode($server_output);
 
@@ -73,8 +73,8 @@ Route::get('testable', function ()
             $insert->subject_id = 14;
             $insert->slug = 'oyun-ve-hobi/'.\Str::slug($level->Name);
             $insert->save();
-                        
-           
+
+
             echo $level->Name."<br />";
         }
     }
@@ -90,7 +90,7 @@ Route::get('mailable', function () {
         'email' => "aa@aa.com",
         'phone_mobile' => "053233874646",
         'message' => "mesajım böyle"
-    ]);    
+    ]);
     return new App\Mail\DomainNewMessage($user, $message);
 });
 
@@ -121,13 +121,13 @@ Route::get('update_user_points', function () {
 });
 */
 
-Route::group(['middleware' => ['role:admin']], function () {  
+Route::group(['middleware' => ['role:admin']], function () {
     Route::get('autologin/{id}', function ($id) {
         $user = App\Models\User::where('id', $id)->first();
         Auth::login($user);
-    
+
         return redirect('users/dashboard');
-    });    
+    });
 
     Route::get('orderable', function () {
         $data = new \Illuminate\Http\Request([
@@ -135,18 +135,18 @@ Route::group(['middleware' => ['role:admin']], function () {
             'status'  => 'success',
             'total_amount' => '5000'
         ]);
-        
+
         $hash = base64_encode( hash_hmac('sha256', $data->get('merchant_oid') . '1tbxU28PRthzEJ2J' . $data->get('status') . $data->get('total_amount'), '1yonBuzJQ3wkMtra', true) );
         $data->request->add(['hash' => $hash]);
-        
+
         $cartController = new \App\Http\Controllers\CartController;
         $cartController->payment_notify($data);
-    });    
+    });
 });
 
 Route::middleware([SetupApplication::class])->group(function () {
 
-if(!in_array(request()->getHttpHost(), ['fnet.io', 'netders.com', 'dev.netders.com', '127.0.0.1:8000']))
+if(!in_array(request()->getHttpHost(), ['nd.io', 'netders.com', 'dev.netders.com', '127.0.0.1:8000']))
 {
     Route::post('users/mobile_phone', [UserController::class, 'mobile_phone'])->name('users/mobile_phone')->middleware('throttle:auth');
     Route::post('send_message', [UserController::class, 'domain_send_message'])->name('domain_send_message')->middleware('throttle:auth');
@@ -154,14 +154,14 @@ if(!in_array(request()->getHttpHost(), ['fnet.io', 'netders.com', 'dev.netders.c
 }
 else
 {
-    Route::group(['middleware' => ['role:admin']], function () {  
+    Route::group(['middleware' => ['role:admin']], function () {
         Route::get('cp', [AdminController::class, 'dashboard'])->name('cp')->middleware('auth');
         Route::get('cp/photo_approval', [AdminController::class, 'photo_approval'])->name('cp/photo_approval')->middleware('auth');
         Route::post('cp/photo_approval', [AdminController::class, 'photo_approval_save'])->name('cp/photo_approval_save')->middleware('auth');
         Route::post('cp/photo_decline', [AdminController::class, 'photo_decline'])->name('cp/photo_decline')->middleware('auth');
         Route::get('cp/user_approval', [AdminController::class, 'user_approval'])->name('cp/user_approval')->middleware('auth');
         Route::post('cp/user_approval', [AdminController::class, 'user_approval_save'])->name('cp/user_approval_save')->middleware('auth');
-        Route::post('cp/user_decline', [AdminController::class, 'user_decline'])->name('cp/user_decline')->middleware('auth');        
+        Route::post('cp/user_decline', [AdminController::class, 'user_decline'])->name('cp/user_decline')->middleware('auth');
     });
 
     Route::get('cron1min', [UserController::class, 'cron1min'])->name('cron1min');
@@ -284,7 +284,7 @@ else
     Route::post('password/change', [AuthController::class, 'password_changing'])->name('password/changing')->middleware('auth');
 
     Route::any('uploads/{any?}', function ($any = null) {
-        return Redirect::to($any, 301); 
+        return Redirect::to($any, 301);
     })->where('any', '.*');
 
     Route::get('{all?}', [RouteController::class, 'index'])->where('all', '(.*)')->name('dynamic');
