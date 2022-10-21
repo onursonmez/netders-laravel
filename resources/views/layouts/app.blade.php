@@ -2,8 +2,8 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="ie=edge"> 
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> 
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 @if(isset($seo_title) || Route::currentRouteName() == 'welcome')
 <title>{{ $seo_title ?? env('APP_SEO_TITLE') }}</title>
 @endif
@@ -53,44 +53,44 @@
     <div class="overlay"></div>
     @endif
     <div class="container">
-      <nav class="navbar navbar-light navbar-expand-lg p-0 pt-4 pb-4">
-          <a class="navbar-brand" href="{{ url('/') }}">
-              <img src="{{ asset('img/netders-logo-blue.svg') }}" width="200" />
-          </a>
-          <a href="#main-mmenu" class="navbar-toggler">
-            <span class="navbar-toggler-icon"></span>
-          </a>
-          <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ml-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url('ozel-ders-ilanlari-verenler/'.Session::get('city_slug')) }}"><img class="align-middle mb-1" src="{{ asset('img/form-search-blue.svg') }}" width="13" height="13" /> Eğitmen ara</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url('netders/nasil-calisir.html') }}"><img class="align-middle mb-1" src="{{ asset('img/messaging-question-blue.svg') }}" width="13" height="13" /> Nasıl çalışır?</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url('yardim') }}"><img class="align-middle mb-1" src="{{ asset('img/damage-necessities-blue.svg') }}" width="13" height="13" /> Yardım</a>
-              </li>
-              @if(Auth::check())
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url('cart') }}"><img class="align-middle mb-1" src="{{ asset('img/shopping-cart-blue.svg') }}" width="13" height="13" /> Alışveriş sepeti</a>
-              </li>                 
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url('users/dashboard') }}"><img class="align-middle mb-1" src="{{ asset('img/profile-icon-blue.svg') }}" width="13" height="13" /> Hesabım</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url('auth/logout') }}"><img class="align-middle mb-1" src="{{ asset('img/navigation-logout-blue.svg') }}" width="13" height="13" /> Çıkış</a>
-              </li>                   
-              @else
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url('auth/login') }}"><img class="align-middle mb-1" src="{{ asset('img/navigation-login-blue.svg') }}" width="13" height="13" /> Giriş</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url('auth/register') }}"><img class="align-middle mb-1" src="{{ asset('img/action-add-blue.svg') }}" width="13" height="13" /> Ücretsiz üye ol</a>
-              </li>
-              @endif      
-            </ul>
-          </div>
+        <nav class="navbar navbar-light navbar-expand-lg p-0 pt-4 pb-4">
+            <a class="navbar-brand" href="{{ url('/') }}">
+                <img src="{{ asset('img/netders-logo-blue.svg') }}" width="200" />
+            </a>
+            <a href="#main-mmenu" class="navbar-toggler">
+                <span class="navbar-toggler-icon"></span>
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('ozel-ders-ilanlari-verenler/'.Session::get('city_slug')) }}"><img class="align-middle mb-1" src="{{ asset('img/form-search-blue.svg') }}" width="13" height="13" /> Eğitmen ara</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('netders/nasil-calisir.html') }}"><img class="align-middle mb-1" src="{{ asset('img/messaging-question-blue.svg') }}" width="13" height="13" /> Nasıl çalışır?</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('yardim') }}"><img class="align-middle mb-1" src="{{ asset('img/damage-necessities-blue.svg') }}" width="13" height="13" /> Yardım</a>
+                    </li>
+                    @if(Auth::check())
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('cart') }}"><img class="align-middle mb-1" src="{{ asset('img/shopping-cart-blue.svg') }}" width="13" height="13" /> Alışveriş sepeti</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('users/dashboard') }}"><img class="align-middle mb-1" src="{{ asset('img/profile-icon-blue.svg') }}" width="13" height="13" /> Hesabım</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('auth/logout') }}"><img class="align-middle mb-1" src="{{ asset('img/navigation-logout-blue.svg') }}" width="13" height="13" /> Çıkış</a>
+                        </li>
+                    @else
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('auth/login') }}"><img class="align-middle mb-1" src="{{ asset('img/navigation-login-blue.svg') }}" width="13" height="13" /> Giriş</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('auth/register') }}"><img class="align-middle mb-1" src="{{ asset('img/action-add-blue.svg') }}" width="13" height="13" /> Ücretsiz üye ol</a>
+                        </li>
+                    @endif
+                </ul>
+            </div>
         </nav>
     </div>
 
@@ -117,11 +117,11 @@
       <div class="p-2"><a href="{{ url('contact') }}">İletişim</a></div>
     </div>
 
-    <div class="p-2 font-italic"><small>Netders.com internet üzerinden eğitmenler ile öğrencileri buluşturarak online eğitim imkanı sunan bir internet sitesidir. Herhangi bir kurum ile bağı yoktur.<br />Netders.com'a üye olarak <a href="{{ url('netders/kullanim-kosullari.html') }}">Kullanım koşulları</a>'nı kabul etmiş sayılırsınız.<br />{{ \Carbon\Carbon::now()->setTimezone(Session::get('timezone'))->format('d.m.Y H:i') }}</small></div>
+    <div class="p-2 font-italic"><small>Netders.com internet üzerinden eğitmenler ile öğrencileri buluşturarak yüz yüze veya online eğitim imkanı sunan bir internet sitesidir. Herhangi bir kurum ile bağı yoktur.<br />Netders.com'a üye olarak <a href="{{ url('netders/kullanim-kosullari.html') }}">Kullanım koşulları</a>'nı kabul etmiş sayılırsınız.<br />{{ \Carbon\Carbon::now()->setTimezone(Session::get('timezone'))->format('d.m.Y H:i') }}</small></div>
 
     <div class="p-2"><img src="{{ asset('img/turkiye-white.svg') }}" width="150" /></div>
 
-    
+
 
     <div class="d-flex justify-content-center">
       <div class="p-2"><a href="{{ url('netders/kullanim-kosullari.html') }}">Kullanım Koşulları</a></div>
@@ -146,7 +146,7 @@
 		</div>
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
-</div><!-- /.modal --> 
+</div><!-- /.modal -->
 
 <nav id="main-mmenu">
       <ul>
