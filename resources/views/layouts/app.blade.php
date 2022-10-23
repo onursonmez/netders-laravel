@@ -52,7 +52,7 @@
     @if(Route::currentRouteName() == 'users/search')
     <div class="overlay"></div>
     @endif
-    <div class="bg-white mb-4 shadow-sm">
+    <div class="bg-white mb-4 box-shadow">
     <div class="container">
         <nav class="navbar navbar-light navbar-expand-lg p-0 pt-3 pb-3">
             <a class="navbar-brand" href="{{ url('/') }}">
