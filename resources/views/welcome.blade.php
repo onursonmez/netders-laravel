@@ -196,6 +196,7 @@
         <h2 class="text-dark font-weight-bolder mb-4">
           Günün eğitim kategorileri
         </h2>
+          @if(isset($populars) && !empty($popupars))
         @foreach ($populars->chunk(3) as $chunk)
         <div class="row">
           @foreach ($chunk as $popular)
@@ -207,6 +208,7 @@
           @endforeach
         </div>
         @endforeach
+              @endif
       </div>
     </div>
 

@@ -300,7 +300,7 @@ footer.bg{
   cursor:pointer;
 }
 
-@media (max-width: 575.98px) 
+@media (max-width: 575.98px)
 {
   .pagination {
     padding: 0.25rem 0.3rem;
@@ -310,5 +310,9 @@ footer.bg{
   .page-link {
     padding: 0.5rem 0.45rem;
     margin: 0 1px;
-  }  
+  }
+}
+
+.navbar-brand{
+    padding-top: 0;
 }

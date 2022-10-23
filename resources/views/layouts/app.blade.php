@@ -52,8 +52,9 @@
     @if(Route::currentRouteName() == 'users/search')
     <div class="overlay"></div>
     @endif
+    <div class="bg-white mb-4 shadow-sm">
     <div class="container">
-        <nav class="navbar navbar-light navbar-expand-lg p-0 pt-4 pb-4">
+        <nav class="navbar navbar-light navbar-expand-lg p-0 pt-3 pb-3">
             <a class="navbar-brand" href="{{ url('/') }}">
                 <img src="{{ asset('img/netders-logo-blue.svg') }}" width="200" />
             </a>
@@ -93,7 +94,7 @@
             </div>
         </nav>
     </div>
-
+    </div>
     @yield('content')
 
     <div class="container">

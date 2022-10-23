@@ -37,7 +37,7 @@ class HomeController extends Controller
                 $data['users'][$keyword] =  $userController->generate($params);
             }
 
-            Cache::put($cache, $data['users'], 1440);
+            Cache::put($cache, $data['users'], 86400);
         }
 
         $cache = md5(json_encode('populars'));
@@ -48,7 +48,7 @@ class HomeController extends Controller
         else
         {
             $data['populars'] = \App\Models\Level::orderBy('title')->limit(18)->offset(date('d') * 18)->get();
-            Cache::put($cache, $data['populars'], 1440);
+            Cache::put($cache, $data['populars'], 86400);
         }
 
         $cache = md5(json_encode('subjects'));
@@ -59,7 +59,7 @@ class HomeController extends Controller
         else
         {
             $data['subjects'] = \App\Models\Subject::get();
-            Cache::put($cache, $data['subjects'], 1440);
+            Cache::put($cache, $data['subjects'], 86400);
         }
 
         $cache = md5(json_encode('cities'));
@@ -70,7 +70,7 @@ class HomeController extends Controller
         else
         {
             $data['cities'] = \App\Models\Subject::get();
-            Cache::put($cache, $data['cities'], 1440);
+            Cache::put($cache, $data['cities'], 86400);
         }
 
         return view('welcome', $data);

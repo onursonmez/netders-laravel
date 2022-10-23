@@ -28,7 +28,7 @@ class UserController extends Controller
     protected $data = [];
 
     public function search(Request $request, $citytown = null, $subjectlevel = null)
-    {   
+    {
         $data = [];
 
 		if($request->get('city_id') || $request->get('town_id') || $request->get('subject_id') || $request->get('level_id'))
@@ -59,7 +59,7 @@ class UserController extends Controller
             //'sort'              => $request->get('sort_price') ? 'sort_price' : 'search_point',
             //'by'                => $request->get('sort_price') ? $request->get('sort_price') : ($request->get('sort_point') ? $request->get('sort_point') : 'desc'),
             'sort'              => 'search_point',
-            'by'                => 'desc',            
+            'by'                => 'desc',
             'limit'             => 20
         ];
 
@@ -91,7 +91,7 @@ class UserController extends Controller
         $data['params'] = json_decode(json_encode($params), false);
         $data['seo_title'] = $this->get_seo_title($params);
         $data['seo_description'] = $this->get_seo_description($params);
-                
+
         return view('users.search', $data);
     }
 
@@ -105,15 +105,22 @@ class UserController extends Controller
         //}
         //else
         //{
-            $query = User::whereIn('group_id', [3,4,5])->whereNotNull('search_point')->where('status', 'A')->with(['detail.city', 'detail.town', 'photo', 'prices', 'service_badge'])->has('prices')->orderBy($params['sort'] ?? 'id', $params['by'] ?? 'desc')->orderBy('updated_at', 'desc');
+            $query = User::with(['detail.city', 'detail.town', 'photo', 'prices', 'service_badge'])
+                ->whereIn('group_id', [3,4,5])
+                ->whereNotNull('search_point')
+                ->where('status', 'A')
+                ->has('prices')
+                ->orderBy($params['sort'] ?? 'id', $params['by'] ?? 'desc')
+                ->orderBy('updated_at', 'desc');
 
             if(!empty($params['keyword']))
             {
-                $query->whereRaw('CONCAT(first_name, \' \', last_name) iLIKE ?', ['%'.$params['keyword'].'%']);
-
-                $query->orWhereHas('prices.levels', function($q) use($params){
-                    $q->where('title', 'ilike', '%'.$params['keyword'].'%');
-                });                
+                $query->where(function($q) use($params){
+                    $q->whereRaw('CONCAT(first_name, \' \', last_name) ilike ?', ['%'.$params['keyword'].'%'])
+                        ->orWhereHas('prices.levels', function($plq) use($params){
+                            $plq->where('title', 'ilike', '%'.$params['keyword'].'%');
+                        });
+                });
             }
 
             if(!empty($params['live']))
@@ -147,45 +154,45 @@ class UserController extends Controller
                 $query = $query->whereHas('prices.levels', function($q) use($params){
                     $q->where('id', $params['level_id']);
                 });
-            }   
-            
+            }
+
             if(!empty($params['price_min']))
             {
                 $query = $query->whereHas('prices', function($q) use($params){
                     $q->where('price_private', '>=', $params['price_min'])->whereNotNull('price_private');
                     $q->orWhere('price_live', '>=', $params['price_min'])->whereNotNull('price_live');
                 });
-            }        
-            
+            }
+
             if(!empty($params['price_max']))
             {
                 $query = $query->whereHas('prices', function($q) use($params){
                     $q->where('price_private', '<=', $params['price_max'])->whereNotNull('price_private');
                     $q->orWhere('price_live', '<=', $params['price_max'])->whereNotNull('price_live');
                 });
-            }   
+            }
 
             if(!empty($params['figure']) && empty($params['live']))
             {
                 $query = $query->whereHas('user_figures', function($q) use($params){
                     $q->whereIn('figure_id', $params['figure']);
                 });
-            }     
-            
+            }
+
             if(!empty($params['place']) && empty($params['live']))
             {
                 $query = $query->whereHas('user_places', function($q) use($params){
                     $q->whereIn('place_id', $params['place']);
                 });
-            }      
-            
+            }
+
             if(!empty($params['service']) && empty($params['live']))
             {
                 $query = $query->whereHas('user_services', function($q) use($params){
                     $q->whereIn('service_id', $params['service']);
                 });
-            }       
-            
+            }
+
             if(!empty($params['time']) && empty($params['live']))
             {
                 $query = $query->whereHas('user_times', function($q) use($params){
@@ -203,7 +210,7 @@ class UserController extends Controller
             if(!empty($params['group']))
             {
                 $query->whereIn('group_id', $params['group']);
-            }            
+            }
 
             if(!empty($params['has_photo']))
             {
@@ -241,7 +248,7 @@ class UserController extends Controller
         $this->data['times'] = \App\Models\Time::get();
         $this->data['genders'] = \App\Models\Gender::get();
         $this->data['discounts'] = \App\Models\Discount::get();
-        
+
         $this->data['definition'] = \App\Models\Calendar_definition::where('user_id', $user->id)->first();
         if(!empty($this->data['definition']))
         {
@@ -275,9 +282,9 @@ class UserController extends Controller
         }
         else
         {
-            return redirect('users/required')->withErrors(['errors' => [Lang::get('auth.missing_profile_fields')]]);            
+            return redirect('users/required')->withErrors(['errors' => [Lang::get('auth.missing_profile_fields')]]);
         }
-    }    
+    }
 
     public function dashboard(Request $request)
     {
@@ -288,12 +295,12 @@ class UserController extends Controller
             $this->data['views'] = Cache::get($cache);
         }
         else
-        {        
+        {
             $this->data['views'] = [];
             $query = \App\Models\View::where('user_id', Auth::user()->id)->where('created_at', '>=', \Carbon\Carbon::now()->subDays(365))->orderBy('created_at')->get()->groupBy(function($d) {
                 return \Carbon\Carbon::parse($d->created_at)->format('m-Y');
             })->toArray();
-        
+
             foreach($query as $key => $data)
             {
                 $this->data['views'][$key] = count($data);
@@ -313,7 +320,7 @@ class UserController extends Controller
         })->where('status', 'A')->where('start_at', '>=', \Carbon\Carbon::now())->orderBy('start_at', 'asc')->first();
 
         return view('users.dashboard', $this->data);
-    }    
+    }
 
     public function personal(Request $request)
     {
@@ -322,7 +329,7 @@ class UserController extends Controller
         $this->data['professions'] = \App\Models\Profession::get();
 
         return view('users.personal', $this->data);
-    }    
+    }
 
     public function personal_save(Request $request)
     {
@@ -354,14 +361,14 @@ class UserController extends Controller
                         'url' => $uploaded_file,
                         'approved' => false,
                         'main' => 't'
-                    ]);                    
+                    ]);
                 }
             }
         }
 
         return $request->wantsJson()
                     ? response()->json(['success' => [Lang::get('auth.completed')]])
-                    : redirect()->back()->with(['messages' => [Lang::get('auth.completed')]]);  
+                    : redirect()->back()->with(['messages' => [Lang::get('auth.completed')]]);
     }
 
     public function delete_photo(Request $request)
@@ -377,11 +384,11 @@ class UserController extends Controller
 
                     return $request->wantsJson()
                                 ? response()->json(['success' => [Lang::get('auth.completed')]])
-                                : redirect()->back()->with(['success' => [Lang::get('auth.completed')]]);                      
+                                : redirect()->back()->with(['success' => [Lang::get('auth.completed')]]);
                 }
             }
         }
-    }    
+    }
 
     public function informations(Request $request)
     {
@@ -400,7 +407,7 @@ class UserController extends Controller
 
         return $request->wantsJson()
                     ? response()->json(['success' => [Lang::get('auth.completed')]])
-                    : redirect()->back()->with(['messages' => [Lang::get('auth.completed')]]);          
+                    : redirect()->back()->with(['messages' => [Lang::get('auth.completed')]]);
     }
 
     public function preferences(Request $request)
@@ -413,8 +420,8 @@ class UserController extends Controller
         $this->data['discounts'] = \App\Models\Discount::get();
 
         return view('users.preferences', $this->data);
-    } 
-    
+    }
+
     public function preferences_save(Request $request)
     {
         $detail = User_detail::where('user_id', Auth::user()->id)->first();
@@ -425,9 +432,9 @@ class UserController extends Controller
 
         $detail->user_id = Auth::user()->id;
         $detail->privacy_lastname = $request->get('privacy_lastname');
-        $detail->privacy_phone = $request->get('privacy_phone');        
-        $detail->privacy_age = $request->get('privacy_age');        
-        $detail->email_list = $request->get('email_list');        
+        $detail->privacy_phone = $request->get('privacy_phone');
+        $detail->privacy_age = $request->get('privacy_age');
+        $detail->email_list = $request->get('email_list');
         $detail->save();
 
         User_figure::where('user_id', Auth::user()->id)->delete();
@@ -443,7 +450,7 @@ class UserController extends Controller
                 $figure = new User_figure;
                 $figure->user_id = Auth::user()->id;
                 $figure->figure_id = $id;
-                $figure->save();  
+                $figure->save();
             }
         }
 
@@ -454,10 +461,10 @@ class UserController extends Controller
                 $service = new User_service;
                 $service->user_id = Auth::user()->id;
                 $service->service_id = $id;
-                $service->save();  
+                $service->save();
             }
         }
-        
+
         if(!empty($request->get('times')))
         {
             foreach($request->get('times') as $id)
@@ -465,10 +472,10 @@ class UserController extends Controller
                 $time = new User_time;
                 $time->user_id = Auth::user()->id;
                 $time->time_id = $id;
-                $time->save();  
+                $time->save();
             }
         }
-        
+
         if(!empty($request->get('places')))
         {
             foreach($request->get('places') as $id)
@@ -476,10 +483,10 @@ class UserController extends Controller
                 $place = new User_place;
                 $place->user_id = Auth::user()->id;
                 $place->place_id = $id;
-                $place->save();  
+                $place->save();
             }
         }
-        
+
         if(!empty($request->get('genders')))
         {
             foreach($request->get('genders') as $id)
@@ -487,26 +494,26 @@ class UserController extends Controller
                 $gender = new User_gender;
                 $gender->user_id = Auth::user()->id;
                 $gender->gender_id = $id;
-                $gender->save();  
+                $gender->save();
             }
-        }        
-                      
+        }
+
         return $request->wantsJson()
                     ? response()->json(['success' => [Lang::get('auth.completed')]])
-                    : redirect()->back()->with(['messages' => [Lang::get('auth.completed')]]);          
-    }   
-    
+                    : redirect()->back()->with(['messages' => [Lang::get('auth.completed')]]);
+    }
+
     public function discounts(Request $request)
     {
         $this->data['discounts'] = \App\Models\Discount::orderBy('id')->get();
 
         return view('users.discounts', $this->data);
-    }     
+    }
 
     public function discounts_save(Request $request)
     {
         User_discount::where('user_id', Auth::user()->id)->delete();
-        
+
         if(!empty($request->get('discount')))
         {
             foreach($request->get('discount') as $id => $value)
@@ -518,22 +525,22 @@ class UserController extends Controller
                     $discount->discount_id = $id;
                     $discount->rate = $request->get('discount')[$id];
                     $discount->description = !empty($request->get('discount_description')[$id]) ? $request->get('discount_description')[$id] : NULL;
-                    $discount->save();  
+                    $discount->save();
                 }
             }
         }
 
         User::calculate_search_point(Auth::user()->id);
-        
+
         return $request->wantsJson()
                     ? response()->json(['success' => [Lang::get('auth.completed')]])
-                    : redirect()->back()->with(['messages' => [Lang::get('auth.completed')]]);          
-    }   
+                    : redirect()->back()->with(['messages' => [Lang::get('auth.completed')]]);
+    }
 
     public function memberships(Request $request)
     {
         return view('users.memberships', $this->data);
-    }     
+    }
 
     private function set_search_link($request)
     {
@@ -580,7 +587,7 @@ class UserController extends Controller
                 $subject_slug = \App\Models\Subject::where('id', $request->get('subject_id'))->pluck('slug')->first();
                 $url .= $subject_slug;
                 unset($query_strings['subject_id']);
-            }            
+            }
         }
 
 		if($request->get('subject_id') || $request->get('level_id'))
@@ -601,7 +608,7 @@ class UserController extends Controller
         $town_id = null;
         $subject_id = null;
         $level_id = null;
-        
+
         if($citytown)
         {
             $town = \App\Models\Town::where('slug', $citytown)->first();
@@ -633,7 +640,7 @@ class UserController extends Controller
             Session::forget('site_city');
             Session::forget('site_town');
         }
-        
+
         if($subjectlevel)
         {
             $level = \App\Models\Level::where('slug', $subjectlevel)->first();
@@ -642,7 +649,7 @@ class UserController extends Controller
                 $subject_id = $level->subject_id;
                 $level_id = $level->id;
                 Session::put('site_subject', $subject_id);
-                Session::put('site_level', $level_id);                
+                Session::put('site_level', $level_id);
             }
             else
             {
@@ -656,7 +663,7 @@ class UserController extends Controller
                 else
                 {
                     Session::forget('site_subject');
-                    Session::forget('site_level');                    
+                    Session::forget('site_level');
                 }
             }
         }
@@ -664,7 +671,7 @@ class UserController extends Controller
         {
             Session::forget('site_subject');
             Session::forget('site_level');
-        }        
+        }
 
         return ['city_id' => $city_id, 'town_id' => $town_id, 'subject_id' => $subject_id, 'level_id' => $level_id];
     }
@@ -672,20 +679,20 @@ class UserController extends Controller
     public function new_message()
     {
         $returnHTML = view('users.load_new_message')->render();
-        return response()->json(['success' => true, 'html'=> $returnHTML]);          
+        return response()->json(['success' => true, 'html'=> $returnHTML]);
     }
 
     public function new_comment(Request $request)
     {
         $returnHTML = view('users.load_new_comment')->with('form_url', $request->get('form_url'))->render();
-        return response()->json(['success' => true, 'html'=> $returnHTML]);          
-    }    
+        return response()->json(['success' => true, 'html'=> $returnHTML]);
+    }
 
     public function new_complaint()
     {
         $returnHTML = view('users.load_new_complaint')->render();
-        return response()->json(['success' => true, 'html'=> $returnHTML]);          
-    }        
+        return response()->json(['success' => true, 'html'=> $returnHTML]);
+    }
 
     public function send_comment(Request $request)
     {
@@ -693,21 +700,21 @@ class UserController extends Controller
             'user_id' => 'required',
             'rating' => 'required',
             'comment' => 'required',
-        ]);      
-        
+        ]);
+
         $comment = new \App\Models\Comment;
         $comment->user_id = $request->get('data_id');
         $comment->creator_id = Auth::user()->id;
         $comment->comment = $request->get('comment');
         $comment->rating = $request->get('rating');
-        
-        $comment->save();   
-        
+
+        $comment->save();
+
         return $request->wantsJson()
                     ? response()->json(['success' => [Lang::get('comment.send_success')]])
-                    : redirect()->back()->with(['messages' => [Lang::get('comment.send_success')]]);  
+                    : redirect()->back()->with(['messages' => [Lang::get('comment.send_success')]]);
     }
-    
+
     public function send_complaint(Request $request)
     {
         $request->validate([
@@ -717,8 +724,8 @@ class UserController extends Controller
             'email' => 'required|max:255|email',
             'phone_mobile' => 'required',
             'message' => 'required',
-        ]);      
-        
+        ]);
+
         $complaint = new \App\Models\Complaint;
         $complaint->user_id = $request->get('data_id');
         $complaint->first_name = $request->get('first_name');
@@ -726,13 +733,13 @@ class UserController extends Controller
         $complaint->email = $request->get('email');
         $complaint->phone_mobile = $request->get('phone_mobile');
         $complaint->message = $request->get('message');
-        $complaint->save();   
-        
+        $complaint->save();
+
         return $request->wantsJson()
                     ? response()->json(['success' => [Lang::get('complaint.send_success')]])
-                    : redirect()->back()->with(['messages' => [Lang::get('complaint.send_success')]]);  
+                    : redirect()->back()->with(['messages' => [Lang::get('complaint.send_success')]]);
     }
-    
+
     public function activities()
     {
         $this->data['orders'] = \App\Models\Order::where('user_id', Auth::user()->id)->orderBy('start_at', 'desc')->get();
@@ -767,20 +774,20 @@ class UserController extends Controller
         if(isset($params['keyword']))
         {
             $params['seo_title'][] = txtWordUpper($params['keyword']);
-        }  
-        
+        }
+
         $params['seo_title'][] = Lang::get('general.private_lesson_teachers');
 
         if(isset($params['title']['level']))
         {
             $params['seo_title'][] = "- " . $params['title']['subject'];
-        }        
+        }
 
         return implode(' ', $params['seo_title']);
     }
-    
+
     private function get_seo_description($params)
-    {   
+    {
         if(isset($params['title']['town']))
         {
             $params['seo_title'][] = $params['title']['town'];
@@ -810,17 +817,17 @@ class UserController extends Controller
         if(isset($params['keyword']))
         {
             $params['seo_title'][] = txtWordUpper($params['keyword']);
-        }  
+        }
 
         $params['seo_title'][] = Lang::get('general.by_created_here');
-                
+
         if(isset($params['title']['level']))
         {
             $params['seo_title'][] = "- " . $params['title']['subject'];
-        }           
+        }
 
         return implode(' ', $params['seo_title']);
-    }    
+    }
 
     public function mobile_phone(Request $request)
     {
@@ -828,7 +835,7 @@ class UserController extends Controller
 
         $request->validate([
             'hash' => 'required',
-        ]);    
+        ]);
 
         if(
 			stristr($request->server('HTTP_USER_AGENT'), 'Google') ||
@@ -836,8 +843,8 @@ class UserController extends Controller
 			stristr($request->server('HTTP_USER_AGENT'), 'MegaIndex')
 		){
 			return false;
-        }        
-        
+        }
+
         $user_id = Crypt::decryptString($request->get('hash'));
 
         $user_detail = User_detail::where('user_id', $user_id)->firstOrFail();
@@ -850,7 +857,7 @@ class UserController extends Controller
                 if($daily_view_by_ip > 20)
                 {
                     $newext = rand(1000,9999);
-                    $phone = str_replace(substr($user_detail->phone_mobile, -4), $newext, $user_detail->phone_mobile);                
+                    $phone = str_replace(substr($user_detail->phone_mobile, -4), $newext, $user_detail->phone_mobile);
                 }
                 else
                 {
@@ -864,7 +871,7 @@ class UserController extends Controller
 
                     if($view_phone_id)
                     $phone = $user_detail->phone_mobile;
-                }        
+                }
             }
         }
 
@@ -878,12 +885,12 @@ class UserController extends Controller
             $request->validate([
                 'password' => 'required|same:password',
                 'cancel_reason' => 'required',
-            ]);        
+            ]);
             if(!Hash::check($request->get('password'), Auth::user()->password))
             {
                 return $request->wantsJson()
                             ? response()->json(['errors' => [Lang::get('auth.current_password_incorrect')]], 422)
-                            : redirect()->back()->withErrors(['errors' => [Lang::get('auth.current_password_incorrect')]]);                 
+                            : redirect()->back()->withErrors(['errors' => [Lang::get('auth.current_password_incorrect')]]);
             }
 
             $cancel = new \App\Models\Cancel;
@@ -895,11 +902,11 @@ class UserController extends Controller
             Auth::user()->update(['status' => 'C']);
 
             Auth::logout();
-            
+
             $redirect = Session::get('redirect') ? Session::get('redirect') : url('auth/login');
             return $request->wantsJson()
                         ? response()->json(['redirect' => $redirect, 'success' => [Lang::get('auth.cancelled')]])
-                        : redirect()->intended($redirect)->with(['messages' => [Lang::get('auth.cancelled')]]);        
+                        : redirect()->intended($redirect)->with(['messages' => [Lang::get('auth.cancelled')]]);
 
         }
 
@@ -917,7 +924,7 @@ class UserController extends Controller
             $q->where('status', 'A');
         })->get();
         */
-        
+
         if($items->count() > 0)
         {
             foreach($items as $item)
@@ -925,19 +932,19 @@ class UserController extends Controller
                 $user = User::find($item->user_id);
                 $mailClass = new \App\Mail\NewMessage($user);
                 $message = $mailClass->onConnection('database')->onQueue('high');
-                Mail::to($user->email)->queue($message);   
-                
+                Mail::to($user->email)->queue($message);
+
                 $participant = \App\Models\Conversation_participant::where('user_id', $item->user_id)->update(['email_at' => \Carbon\Carbon::now()]);
             }
         }
-        
-    }    
+
+    }
 
     public function cron30min()
     {
         //30 dakikadır hareketsiz kullanıcıları offline yap
         User::where('online', true)->where('updated_at', '<', \Carbon\Carbon::now()->subMinutes(30))->update(['online' => false]);
-        
+
         //Expire olmus urunleri sil, user point guncelle
         $orders = \App\Models\Order::where('expired', 'f')->where('end_at', '<', \Carbon\Carbon::now())->get();
         if(!empty($orders))
@@ -953,12 +960,12 @@ class UserController extends Controller
         \App\Models\Cart::where('status', 'W')->where('created_at', '<', \Carbon\Carbon::yesterday())->delete();
 
         //Ders sepetindeki 30 dakikadan eski urunleri kaldir
-        \App\Models\Calendar_lesson::where('status', 'W')->where('created_at', '<', \Carbon\Carbon::now()->subMinutes(30))->delete();        
+        \App\Models\Calendar_lesson::where('status', 'W')->where('created_at', '<', \Carbon\Carbon::now()->subMinutes(30))->delete();
 
         //!!!pazaryeri aktif olunca calendar_lessons da D ve C durumundaki dersleri işleme al. açıklaması calendarcontroller.php de !!!
 
         //!!!7 günü geçmiş aktif ders versa durumunu C yap yani otomatik ödeme onayı ver!!!
-    }    
+    }
 
     public function badge()
     {
@@ -981,11 +988,11 @@ class UserController extends Controller
                     if(unlink(public_path($check->url)))
                     {
                         $check->delete();
-                    }                    
+                    }
                 }
             }
             if ($request->file('document')->isValid()) {
-                
+
                 $file_name = Auth::user()->id . '-' . time() . '.' .  $request->file('document')->getClientOriginalExtension();
                 $folder = '/badge';
                 $uploaded_file = $request->file('document')->storeAs($folder, $file_name, 'local');
@@ -995,8 +1002,8 @@ class UserController extends Controller
                         'user_id' => Auth::user()->id,
                         'order_id' => Auth::user()->service_badge->id,
                         'url' => $uploaded_file,
-                    ]);     
-                    
+                    ]);
+
                     $order = \App\Models\Order::where('user_id', Auth::user()->id)->where('product_id', 10)->where('status', 'W')->first();
                     $order->status = 'P';
                     $order->save();
@@ -1006,12 +1013,12 @@ class UserController extends Controller
 
         return $request->wantsJson()
                     ? response()->json(['redirect' => url('users/dashboard'), 'success' => [Lang::get('auth.completed')]])
-                    : redirect('users/dashboard')->with(['messages' => [Lang::get('auth.completed')]]);  
-    }    
+                    : redirect('users/dashboard')->with(['messages' => [Lang::get('auth.completed')]]);
+    }
 
     public function domain()
     {
-        if(!Auth::user()->domain('W')) 
+        if(!Auth::user()->domain('W'))
             return redirect('users/dashboard');
 
         return view('users.domain');
@@ -1024,41 +1031,41 @@ class UserController extends Controller
         $request->validate([
             'domain' => 'required',
             'ext' => 'required',
-        ]);           
+        ]);
 
         $domain_name = $request->get('domain') . $request->get('ext');
 
-        if (gethostbyname($domain_name) != $domain_name) 
+        if (gethostbyname($domain_name) != $domain_name)
         {
-            return redirect('domain')->with(['success' => false, 'domain' => $request->get('domain'), 'ext' => $request->get('ext'), 'message' => Lang::get('general.domain_exist')]);  
+            return redirect('domain')->with(['success' => false, 'domain' => $request->get('domain'), 'ext' => $request->get('ext'), 'message' => Lang::get('general.domain_exist')]);
         }
-        else 
+        else
         {
-            return redirect('domain')->with(['success' => true, 'domain' => $request->get('domain'),'ext' => $request->get('ext'), 'message' => Lang::get('general.domain_available')]);  
-        }        
-    }    
+            return redirect('domain')->with(['success' => true, 'domain' => $request->get('domain'),'ext' => $request->get('ext'), 'message' => Lang::get('general.domain_available')]);
+        }
+    }
 
     public function domain_select(Request $request)
     {
         if(!Auth::user()->domain('W')) return false;
-        
+
         $request->validate([
             'domain' => 'required',
             'ext' => 'required',
-        ]);     
+        ]);
 
         \App\Models\Domain::create([
             'user_id' => Auth::user()->id,
             'order_id' => Auth::user()->domain('W')->id,
             'domain' => $request->get('domain') . $request->get('ext'),
-        ]);     
-        
+        ]);
+
         $order = Auth::user()->domain('W');
         $order->status = 'P';
         $order->save();
 
-        return redirect('users/dashboard')->with(['messages' => [Lang::get('auth.completed')]]);  
-    }    
+        return redirect('users/dashboard')->with(['messages' => [Lang::get('auth.completed')]]);
+    }
 
     public function domain_send_message(Request $request)
     {
@@ -1067,7 +1074,7 @@ class UserController extends Controller
             'email' => 'required|email',
             'phone_mobile' => 'required',
             'message' => 'required',
-        ]);      
+        ]);
 
         $domain = \App\Models\Domain::where('domain', $request->getHttpHost())->first();
         if(empty($domain))
@@ -1082,13 +1089,13 @@ class UserController extends Controller
             'phone_mobile' => $request->get('phone_mobile'),
             'message' => $request->get('message')
         ]);
-        
+
         $mailClass = new \App\Mail\DomainNewMessage($user, $message);
         $message = $mailClass->onConnection('database')->onQueue('high');
-        Mail::to($user->email)->queue($message);        
-        
+        Mail::to($user->email)->queue($message);
+
         return $request->wantsJson()
                     ? response()->json(['success' => [Lang::get('chat.send_success')]])
-                    : redirect()->back()->with(['messages' => [Lang::get('chat.send_success')]]);  
-    }   
+                    : redirect()->back()->with(['messages' => [Lang::get('chat.send_success')]]);
+    }
 }
